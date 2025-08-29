@@ -418,23 +418,23 @@ def niveaux():
                 if evenement.button == 1:
                     pos = evenement.pos
                     if verif_bouton(pos,50,50,150,50)==1:
-                        niveau1()
+                        création_niveaux()
+                        timer = timer_niveau_1+time()
+                        position_joueur = [4,4]
+                        nb_cassette = 0
+                        monstres = monstres_niveau_1
+                        terrain = niveau_1
+                        exploration()
                     if verif_bouton(pos,50,125,150,50)==1:
                         création_niveaux()
                         timer = timer_niveau_2+time()
-                        position_joueur = [4,4]
+                        position_joueur = [0,0]
                         nb_cassette = 0
                         monstres = monstres_niveau_2
                         terrain = niveau_2
                         exploration()
                     if verif_bouton(pos,50,200,150,50)==1:
-                        création_niveaux()
-                        timer = timer_niveau_3+time()
-                        position_joueur = [0,0]
-                        nb_cassette = 0
-                        monstres = monstres_niveau_3
-                        terrain = niveau_3
-                        exploration()
+                        pass
                     if verif_bouton(pos,50,275,150,50)==1:
                         pass
                         #position_joueur = [5,5]
@@ -500,91 +500,16 @@ def affichage_paramètre():
     bouton(250*zoom,200*zoom,"grande")
     display.flip()
 
-def niveau1():
-    global quitter
-    global hauteur_écran
-    global largeur_écran
-    map_image = image.load("./images/backroom_map.png")  
-    map_surface = PixelArray(map_image)
-
-    # Définir les couleurs marchables et non marchables
-    WALKABLE_COLORS = [(158, 153, 90), (144, 136, 71)]  # Sol + taches
-    NON_WALKABLE_COLORS = [(0x99, 0x82, 0x10), (0x85, 0x6D, 0x09)]  # Murs + taches murs
-
-    # Stocker les positions marchables
-    positions_marchable = set()
-
-    # Analyser la carte pour repérer les zones marchables
-    for x in range(map_image.get_width()):
-        for y in range(map_image.get_height()):
-            couleur = map_image.unmap_rgb(map_surface[x, y])  # Convertir en (R, G, B)
-            if couleur in WALKABLE_COLORS:
-                positions_marchable.add((x, y))  # Ajouter la position marchable
-    # Trouver un point de départ valide
-    if positions_marchable:
-        joueur_x, joueur_y = next(iter(positions_marchable))  # Prendre une position marchable
-    else:
-        raise ValueError("Aucune zone marchable détectée sur la carte !")
-
-    # Taille du joueur (zoomé)
-    player_size = 10  # Agrandi pour un meilleur visuel
-
-    continuer = True
-
-    while continuer:
-        # Déterminer la portion de la carte à afficher (centrée sur le joueur)
-        camera_x = max(0, min(joueur_x - largeur_écran*zoom // 2, map_image.get_width() - largeur_écran*zoom))
-        camera_y = max(0, min(joueur_y - hauteur_écran*zoom // 2, map_image.get_height() - hauteur_écran*zoom))
-
-        # Découper la partie de la carte autour du joueur
-        visible_map = map_image.subsurface((camera_x, camera_y, largeur_écran*zoom, hauteur_écran*zoom))
-
-        # Afficher la partie zoomée de la carte
-        fenêtre.blit(visible_map, (0, 0))
-
-        # Dessiner le personnage (centré dans la vue)
-        joueur_screen_x = joueur_x - camera_x
-        joueur_screen_y = joueur_y - camera_y
-        draw.rect(fenêtre, couleur_joueur, (joueur_screen_x, joueur_screen_y, player_size, player_size))
-
-        display.flip()  # Mettre à jour l'affichage
-
-        # Gestion des événements
-        for evenement in event.get():
-            if evenement.type == QUIT:
-                continuer = False
-                quitter = 1
-            if evenement.type == KEYDOWN:
-                if evenement.key == K_ESCAPE:
-                    continuer = False
-
-        # Gestion des touches pour le mouvement
-        touches = key.get_pressed()
-        new_x, new_y = joueur_x, joueur_y
-
-        if touches[K_UP]:
-            new_y -= 2
-        if touches[K_DOWN]:
-            new_y += 2
-        if touches[K_LEFT]:
-            new_x -= 2
-        if touches[K_RIGHT]:
-            new_x += 2
-        sleep(0.01)     
-        # Vérifier si le mouvement est valide avant d'appliquer
-        if (new_x, new_y) in positions_marchable:
-            joueur_x, joueur_y = new_x, new_y
-
 
 def création_niveaux():
-    global niveau_3
-    global timer_niveau_3
-    global monstres_niveau_3
     global niveau_2
     global timer_niveau_2
     global monstres_niveau_2
+    global niveau_1
+    global timer_niveau_1
+    global monstres_niveau_1
     #niveau1[x][y][...]0 = mur en haut, 1 = mur à droite, 2 = mur en bas, 3 = mur à gauche 4 = cassette
-    niveau_2 = [[[2,2,1,2,1],[1,2,1,2,0],[1,2,1,2,0],[1,1,2,2,0],[2,1,2,2,0],[2,2,1,2,1],[1,1,2,2,0],[2,1,1,2,0],[1,2,1,2,0],[1,1,2,2,0]],
+    niveau_1 = [[[2,2,1,2,1],[1,2,1,2,0],[1,2,1,2,0],[1,1,2,2,0],[2,1,2,2,0],[2,2,1,2,1],[1,1,2,2,0],[2,1,1,2,0],[1,2,1,2,0],[1,1,2,2,0]],
                [[2,1,1,2,0],[1,1,2,2,0],[2,1,1,2,0],[1,2,2,1,0],[2,1,1,1,0],[1,2,1,2,0],[1,2,2,1,0],[2,1,2,1,0],[2,1,2,2,1],[2,1,2,1,0]],
                [[2,2,1,1,0],[1,2,1,1,0],[1,1,2,1,0],[2,1,1,2,1],[1,1,2,1,0],[2,1,1,2,0],[1,1,1,2,0],[1,2,2,1,0],[2,1,2,1,0],[2,1,2,1,0]],
                [[2,1,2,2,1],[2,1,2,2,0],[2,2,1,1,0],[1,2,2,1,0],[2,1,2,1,0],[2,2,2,1,1],[2,2,1,1,0],[1,1,2,2,0],[2,1,2,1,0],[2,1,2,1,0]],
@@ -595,11 +520,11 @@ def création_niveaux():
                [[2,1,2,1,0],[2,2,1,2,1],[1,1,2,2,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,1,1,0],[1,2,1,2,0],[1,2,1,1,0],[1,2,2,1,0],[2,1,2,1,0]],
                [[2,2,1,1,0],[1,2,1,2,0],[1,2,2,1,0],[2,2,1,1,0],[1,2,2,1,0],[2,2,1,1,0],[1,2,1,2,0],[1,2,1,2,1],[1,2,2,2,0],[2,2,2,1,1]]]
 
-    timer_niveau_2 = 180
-    monstres_niveau_2 = [[7,8]]
+    timer_niveau_1 = 180
+    monstres_niveau_1 = [[7,8]]
 
     #niveau1[x][y][...]0 = mur en haut, 1 = mur à droite, 2 = mur en bas, 3 = mur à gauche 4 = cassette
-    niveau_3 = [[[2,1,1,2,2],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,2,2,0]],
+    niveau_2 = [[[2,1,1,2,2],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,1,2,0],[1,1,2,2,0]],
            [[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0]],
            [[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0]],
            [[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0]],
@@ -610,8 +535,8 @@ def création_niveaux():
            [[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0],[2,1,2,1,0]],
            [[2,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,1,1,0],[1,2,2,1,0]]]
     
-    timer_niveau_3 = 100
-    monstres_niveau_3 = [[9,0],[9,2],[9,4],[9,6],[9,8]]
+    timer_niveau_2 = 100
+    monstres_niveau_2 = [[9,0],[9,2],[9,4],[9,6],[9,8]]
 
 #variable pour quitter le programme
 quitter = 0
